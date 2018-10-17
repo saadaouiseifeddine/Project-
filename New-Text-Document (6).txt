@@ -1,0 +1,350 @@
+package com.fr.totaluap.gra.apis.service;
+
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.ArrayOfCampaign;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.ArrayOfRecipient;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.ArrayOflong;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.Campaign;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.CampaignMessageTotalType;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.CampaignReply;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.EnumerationItemOfint;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.Message;
+import com.fr.totaluap.gra.eservices.generated.ws.client.soap.common.Recipient;
+
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class CampaignServiceTest extends AbstractServiceTest {
+
+	@Autowired
+	GRAnalyticsService grAnalyticsService;
+
+	@Before
+	public void setUp() throws Exception {
+
+		Assert.assertNotNull(grAnalyticsService);
+		Assert.assertNotNull(grAnalyticsService.getCampaignService());
+	}
+
+	@Test
+	public void listSendingTypes() {
+
+		Assert.assertNotNull(grAnalyticsService.getCampaignService()
+				.listSendingTypes(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()));
+	}
+
+	@Test
+	public void read() {
+
+		Assert.assertNotNull(grAnalyticsService.getCampaignService().read(
+				sm.getAccesToken().getValue(), sm.getAccesToken().getLogin(),
+				sm.getAccesToken().getIdnum()));
+	}
+
+	@Test
+	public void getCampaignReply() {
+
+		String guid = null;
+
+		grAnalyticsService.getCampaignService().getCampaignReply(guid,
+				sm.getAccesToken().getValue(), sm.getAccesToken().getLogin(),
+				sm.getAccesToken().getIdnum());
+
+	}
+
+	@Test
+	public void modifyContacts() {
+
+		final List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Assert.assertNotNull(campaigns);
+		Assert.assertTrue(!campaigns.isEmpty());
+
+		Campaign campaign = campaigns.get(campaigns.size() - 1);
+
+		campaign.getMessage().setSubject("subject updated");
+		campaign.setAllRecipients(true);
+
+		ArrayOfRecipient ArrayOfRecipient = grAnalyticsService
+				.getCampaignService().listCampaignPossibleRecipients(
+						campaign.getType().getId(),
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+		grAnalyticsService.getCampaignService().modifyContacts(
+				ArrayOfRecipient, sm.getAccesToken().getValue(),
+				sm.getAccesToken().getLogin(), sm.getAccesToken().getIdnum());
+
+	}
+
+	@Test
+	public void saveCampaignReply() {
+
+		List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Campaign campaign = campaigns.get(campaigns.size() - 1);
+		CampaignReply campaignReply = new CampaignReply();
+
+		campaignReply.setAddress(null);
+		campaignReply.setBirthDate("2018-10-10");
+		campaignReply.setBirthLocation("test");
+		campaignReply.setEntryDate("2018-10-10");
+		campaignReply.setHasDrivingLicense(true);
+		campaignReply.setKm(100);
+		campaignReply.setLicenseDate("2018-10-10");
+		campaignReply.setLicenseNumber("123344");
+		campaignReply.setLicensePlate("23432");
+		campaignReply.setNextDate("2018-10-10");
+		campaignReply.setPeriodEndDate("2018-10-10");
+		campaignReply.setPeriodStartDate("2018-10-10");
+		campaignReply.setRecipient(campaign.getRecipients().getRecipient()
+				.get(0));
+		campaignReply.setStatus("test");
+
+		grAnalyticsService.getCampaignService().saveCampaignReply(
+				campaignReply, sm.getAccesToken().getValue(),
+				sm.getAccesToken().getLogin(), sm.getAccesToken().getIdnum());
+	}
+
+	@Test
+	public void listStatus() {
+
+		Assert.assertNotNull(grAnalyticsService.getCampaignService()
+				.listStatus(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()));
+	}
+
+	@Test
+	public void listFrequencies() {
+
+		Assert.assertNotNull(grAnalyticsService.getCampaignService()
+				.listFrequencies(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()));
+	}
+
+	@Test
+	public void createOrUpdateAllRecipient() {
+
+		final List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Assert.assertNotNull(campaigns);
+		Assert.assertTrue(!campaigns.isEmpty());
+		System.out.print("size_campaigns*********" + campaigns.size());
+		Campaign campaign = campaigns.get(campaigns.size() - 1);
+
+		campaign.getMessage().setSubject("subject updated");
+
+		final List<Recipient> recipientList = grAnalyticsService
+				.getCampaignService()
+				.listCampaignPossibleRecipients(campaign.getType().getId(),
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getRecipient();
+
+		Assert.assertNotNull(recipientList);
+		Assert.assertTrue(!recipientList.isEmpty());
+
+		campaign.setAllRecipients(true);
+		for (Recipient dc : recipientList) {
+			dc.setCopyTo(null);
+			campaign.getRecipients().getRecipient().add(dc);
+
+			break;
+
+		}
+		for (int i =60; i < campaign.getRecipients().getRecipient().size(); i++)
+			campaign.getRecipients().getRecipient().remove(i);
+		System.out.print("size*********"
+				+ campaign.getRecipients().getRecipient().size());
+		final Integer result = grAnalyticsService.getCampaignService()
+				.createOrUpdate(campaign, "http://www.google.fr", null, null,
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+
+		Assert.assertNotNull(result);
+
+	}
+
+	@Test
+	public void createOrUpdateCustomRecipient() {
+
+		final List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Assert.assertNotNull(campaigns);
+		Assert.assertTrue(!campaigns.isEmpty());
+
+		final Campaign campaign = campaigns.get(campaigns.size() - 1);
+
+		campaign.getMessage().setSubject("subject updated");
+
+		// campaign.setAllRecipients(true);
+		final List<Recipient> recipientList = grAnalyticsService
+				.getCampaignService()
+				.listCampaignPossibleRecipients(campaign.getType().getId(),
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getRecipient();
+
+		campaign.setAllRecipients(false);
+		final ArrayOfRecipient customRecipientArray = new ArrayOfRecipient();
+		for (Recipient dc : recipientList) {
+			if (dc.getId().toString().equalsIgnoreCase("667")) {
+				dc.setCopyTo(null);
+				campaign.getRecipients().getRecipient().add(dc);
+				customRecipientArray.getRecipient().add(
+						campaign.getRecipients()
+								.getRecipient()
+								.get(campaign.getRecipients().getRecipient()
+										.size() - 1));
+				break;
+			}
+		}
+
+		final Integer result = grAnalyticsService.getCampaignService()
+				.createOrUpdate(campaign, "http://www.google.fr", null, null,
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+
+		Assert.assertNotNull(result);
+
+	}
+
+	@Test
+	public void listTypes() {
+
+		Boolean noCustomOnly = true;
+		List<EnumerationItemOfint> type = grAnalyticsService
+				.getCampaignService()
+				.listTypes(noCustomOnly, sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum())
+				.getEnumerationItemOfint();
+		Assert.assertNotNull(type);
+	}
+
+	@Test
+	public void sendMessageTotal() {
+
+		CampaignMessageTotalType type = null;
+		ArrayOflong clients = null;
+		grAnalyticsService.getCampaignService().sendMessageTotal(type, clients,
+				sm.getAccesToken().getValue(), sm.getAccesToken().getLogin(),
+				sm.getAccesToken().getIdnum());
+	}
+
+	@Test
+	public void listCampaignKeywords() {
+
+		Assert.assertNotNull(grAnalyticsService.getCampaignService()
+				.listCampaignKeywords(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()));
+	}
+
+	@Test
+	public void getMessageByCampaignType() {
+
+		List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Integer campaignTypeId = campaigns.get(0).getType().getId();
+		Integer campaignSendTypeId = 0;
+		Message messageByCampaignType = grAnalyticsService.getCampaignService()
+				.getMessageByCampaignType(campaignTypeId, campaignSendTypeId,
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+		Assert.assertNotNull(messageByCampaignType);
+	}
+
+	@Test
+	public void isRecipientsListWithAssignedVehicle() {
+		Integer campaignTypeId = 0;
+		Object withAssignedVehicle = grAnalyticsService.getCampaignService()
+				.isRecipientsListWithAssignedVehicle(campaignTypeId,
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+		Assert.assertNotNull(withAssignedVehicle);
+
+	}
+
+	@Test
+	public void listCampaignPossibleRecipients() {
+		List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		final Campaign campaign = campaigns.get(campaigns.size() - 1);
+		final ArrayOfRecipient recipientList = grAnalyticsService
+				.getCampaignService().listCampaignPossibleRecipients(
+						campaign.getType().getId(),
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+		Assert.assertNotNull(recipientList);
+		Assert.assertNotNull(campaigns);
+
+	}
+
+	@Test
+	public void readOne() {
+		List<Campaign> campaigns = grAnalyticsService
+				.getCampaignService()
+				.read(sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum()).getCampaign();
+		Long campaignId = campaigns.get(0).getId().longValue();
+		Object onecompaign = grAnalyticsService.getCampaignService().readOne(
+				campaignId, sm.getAccesToken().getValue(),
+				sm.getAccesToken().getLogin(), sm.getAccesToken().getIdnum());
+		Assert.assertNotNull(onecompaign);
+	}
+
+	@Test
+	public void listCampaignTypes() {
+
+		Boolean noCustomOnTrue = true;
+		Object listCampaignType = grAnalyticsService.getCampaignService()
+				.listCampaignTypes(noCustomOnTrue,
+						sm.getAccesToken().getValue(),
+						sm.getAccesToken().getLogin(),
+						sm.getAccesToken().getIdnum());
+		Assert.assertNotNull(listCampaignType);
+	}
+
+	@Test
+	public void sendMessageAgain() {
+
+		ArrayOfRecipient recipients = new ArrayOfRecipient();
+
+		grAnalyticsService.getCampaignService().sendMessageAgain(recipients,
+				sm.getAccesToken().getValue(), sm.getAccesToken().getLogin(),
+				sm.getAccesToken().getIdnum());
+	}
+
+}
